@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var browserSync = require('browser-sync').create();
 var reload = browserSync.reload;
+var clean = require('gulp-clean');
 var plumber = require('gulp-plumber');
 var rename = require('gulp-rename');
 var sourcemaps = require('gulp-sourcemaps');
@@ -44,8 +45,8 @@ gulp.task('sass',()=>{
         .pipe(autoPrefixer())
         .pipe(cssComb())
         .pipe(cmq({log:true}))
-        .pipe(csslint())
-        .pipe(csslint.reporter())
+        // .pipe(csslint())
+        // .pipe(csslint.reporter())
         .pipe(concat('main.css'))
         .pipe(gulp.dest('dist/assets/styles'))
         .pipe(rename({
@@ -57,7 +58,7 @@ gulp.task('sass',()=>{
         .pipe(reload({stream:true}))
 });
 gulp.task('js',()=>{
-    gulp.src(['src/assets/scripts/**/*.js'])
+    gulp.src(['src/assets/scripts/main.js'])
         .pipe(plumber({
             handleError: function (err) {
                 console.log(err);
@@ -74,10 +75,10 @@ gulp.task('js',()=>{
         }))
         .pipe(uglify())
         .pipe(gulp.dest('dist/assets/scripts'))
-        .pipe(reload())
+        .pipe(reload({stream:true}))
 });
 gulp.task('pug',()=>{
-    gulp.src(['src/templates/**/*.pug'])
+    gulp.src(['src/templates/pages/**/*.pug'])
         .pipe(plumber({
             handleError: function (err) {
                 console.log(err);
@@ -87,7 +88,7 @@ gulp.task('pug',()=>{
         .pipe(pug())
         .pipe(minifyHtml())
         .pipe(gulp.dest('./dist'))
-        .pipe(reload())
+        .pipe(reload({stream:true}))
 });
 gulp.task('image',()=>{
     gulp.src(['src/images/**/*'])
@@ -99,10 +100,10 @@ gulp.task('image',()=>{
         }))
         .pipe(cache(imageMin()))
         .pipe(gulp.dest('dist/images'))
-        .pipe(reload())
+        .pipe(reload({stream:true}))
 });
 
-gulp.task('default', ['sass', 'js', 'image', 'pug'],()=>{
+gulp.task('default', ['clean', 'js', 'pug'],()=>{
     browserSync.init({
         server: "./dist"
     });
