@@ -39,7 +39,7 @@ gulp.task('sass',()=>{
         }))
         .pipe(sourcemaps.init())
         .pipe(sass({
-            includePaths: require('node-neat').includePaths
+            includePaths: [require('node-bourbon').includePaths, require('node-neat').includePaths]
         }))
         .pipe(autoPrefixer())
         .pipe(cssComb())
