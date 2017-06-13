@@ -30,7 +30,8 @@
     "jshint": "^2.9.4",
     "node-bourbon": "^4.2.8",
     "node-neat": "^2.0.0-beta.0",
-    "pug": "^2.0.0-rc.2"
+    "pug": "^2.0.0-rc.2",
+    "run-sequence": "^1.2.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

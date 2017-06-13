@@ -8,6 +8,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var sass = require('gulp-sass');
 var csslint = require('gulp-csslint');
 var autoPrefixer = require('gulp-autoprefixer');
+var runSequence = require('run-sequence');
 //if node version is lower than v.0.1.2
 require('es6-promise').polyfill();
 var cssComb = require('gulp-csscomb');
@@ -58,7 +59,7 @@ gulp.task('sass',()=>{
         .pipe(reload({stream:true}))
 });
 gulp.task('js',()=>{
-    gulp.src(['src/assets/scripts/main.js'])
+    gulp.src(['src/assets/scripts/**/*.js'])
         .pipe(plumber({
             handleError: function (err) {
                 console.log(err);
@@ -103,12 +104,26 @@ gulp.task('image',()=>{
         .pipe(reload({stream:true}))
 });
 
-gulp.task('default', ['clean', 'js', 'pug'],()=>{
-    browserSync.init({
-        server: "./dist"
-    });
-    gulp.watch('src/assets/scripts/**/*.js',['js']);
-    gulp.watch('src/assets/styles/**/*.sass',['sass']);
-    gulp.watch('src/templates/**/*.pug',['pug']);
-    gulp.watch('src/images/**/*',['image']);
+
+gulp.task('watch', ()=> {
+  browserSync.init({
+      server: "./dist"
+  });
+  gulp.watch('src/assets/scripts/**/*.js',['js']);
+  gulp.watch('src/assets/styles/**/*.sass',['sass']);
+  gulp.watch('src/templates/**/*.pug',['pug']);
+  gulp.watch('src/images/**/*',['image']);
+});
+
+
+
+gulp.task('default', (cb) => {
+
+    runSequence(
+      'clean',
+      ['sass', 'js', 'pug'],
+      'watch',
+      cb
+    );
+
 });
