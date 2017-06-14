@@ -18,7 +18,6 @@
     "gulp-csscomb": "^3.0.8",
     "gulp-csslint": "^1.0.0",
     "gulp-imagemin": "^3.3.0",
-    "gulp-jade": "^1.1.0",
     "gulp-jshint": "^2.0.4",
     "gulp-merge-media-queries": "^0.2.1",
     "gulp-minify-html": "^1.0.6",
