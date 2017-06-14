@@ -22,17 +22,43 @@ var pug = require('gulp-pug');
 var minifyHtml = require('gulp-minify-html');
 var imageMin = require('gulp-imagemin');
 var cache = require('gulp-cache');
+var argv = require('yargs').argv;
+var fs = require('fs');
+var yaml = require('js-yaml');
+
+var config = {
+  paths: {
+    src: './src',
+    dist: './dist', 
+    data: './src/data',
+    templates: './src/templates/pages',
+    srcImages: './src/assets/images',
+    srcStyles: './src/assets/styles',
+    srcScripts: './src/assets/scripts',
+    distImages: './dist/assets/images',
+    distStyles: './dist/assets/styles',
+    distScripts: './dist/assets/scripts'
+  },
+  defaultPort: 3000,
+  minify: argv.minify || false
+}
+
+var readYamlFile = (file) => {
+  var dataFile = config.paths.data + file;
+  return fs.existsSync(dataFile) ? yaml.safeLoad(fs.readFileSync(dataFile, 'utf8')) : {};
+};
 
 
 // Clean up output directory
 gulp.task('clean', () => {
-  return gulp.src('dist/*', {read: false})
+  return gulp.src(config.paths.dist+ '/*', {read: false})
     .pipe(clean());
 });
 
 
-gulp.task('sass',()=>{
-    gulp.src(['src/assets/styles/**/*.sass'])
+gulp.task('styles',()=>{
+
+    gulp.src([config.paths.srcStyles  + '/main.scss'])
         .pipe(plumber({
             handleError: function (err) {
                 console.log(err);
@@ -41,25 +67,30 @@ gulp.task('sass',()=>{
         }))
         .pipe(sourcemaps.init())
         .pipe(sass({
-            includePaths: [require('node-bourbon').includePaths, require('node-neat').includePaths]
+            includePaths: [
+              require('node-bourbon').includePaths, 
+              require('node-neat').includePaths
+            ]
         }))
         .pipe(autoPrefixer())
         .pipe(cssComb())
         .pipe(cmq({log:true}))
-        // .pipe(csslint())
+        .pipe(csslint())
         // .pipe(csslint.reporter())
-        .pipe(concat('main.css'))
-        .pipe(gulp.dest('dist/assets/styles'))
+        .pipe(gulp.dest(config.paths.distStyles))
         .pipe(rename({
             suffix: '.min'
         }))
         .pipe(cleanCss())
         .pipe(sourcemaps.write())
-        .pipe(gulp.dest('dist/assets/styles'))
+        .pipe(gulp.dest(config.paths.distStyles))
         .pipe(reload({stream:true}))
 });
-gulp.task('js',()=>{
-    gulp.src(['src/assets/scripts/**/*.js'])
+
+
+
+gulp.task('scripts',()=>{
+    gulp.src([config.paths.srcScripts + '/**/*.js'])
         .pipe(plumber({
             handleError: function (err) {
                 console.log(err);
@@ -68,31 +99,39 @@ gulp.task('js',()=>{
         }))
         .pipe(concat('main.js'))
         .pipe(jshint())
-          .pipe(jshint.reporter('default'))
-          .pipe(browserify())
-        .pipe(gulp.dest('dist/assets/scripts'))
+        .pipe(jshint.reporter('default'))
+        .pipe(browserify())
+        .pipe(gulp.dest(config.paths.distScripts))
         .pipe(rename({
             suffix: '.min'
         }))
         .pipe(uglify())
-        .pipe(gulp.dest('dist/assets/scripts'))
+        .pipe(gulp.dest(config.paths.distScripts))
         .pipe(reload({stream:true}))
 });
-gulp.task('pug',()=>{
-    gulp.src(['src/templates/pages/**/*.pug'])
+
+
+
+gulp.task('templates',()=>{
+
+    var data = readYamlFile('/global.yaml');
+    console.log(data);
+    gulp.src([config.paths.templates + '/**/*.pug'])
         .pipe(plumber({
             handleError: function (err) {
                 console.log(err);
                 this.emit('end');
             }
         }))
-        .pipe(pug())
+        .pipe(pug({pretty: true, data: data}))
         .pipe(minifyHtml())
-        .pipe(gulp.dest('./dist'))
+        .pipe(gulp.dest(config.paths.dist))
         .pipe(reload({stream:true}))
 });
-gulp.task('image',()=>{
-    gulp.src(['src/images/**/*'])
+
+
+gulp.task('images',()=>{
+    gulp.src([config.paths.srcImages + '/**/*'])
         .pipe(plumber({
             handleError: function (err) {
                 console.log(err);
@@ -100,19 +139,20 @@ gulp.task('image',()=>{
             }
         }))
         .pipe(cache(imageMin()))
-        .pipe(gulp.dest('dist/images'))
+        .pipe(gulp.dest(config.paths.distImages))
         .pipe(reload({stream:true}))
 });
 
 
 gulp.task('watch', ()=> {
   browserSync.init({
-      server: "./dist"
+      port: config.defaultPort,
+      server: config.paths.dist
   });
-  gulp.watch('src/assets/scripts/**/*.js',['js']);
-  gulp.watch('src/assets/styles/**/*.sass',['sass']);
-  gulp.watch('src/templates/**/*.pug',['pug']);
-  gulp.watch('src/images/**/*',['image']);
+  gulp.watch(config.paths.srcStyles + '/**/*.js',['scripts']);
+  gulp.watch(config.paths.srcStyles + '/**/*.sass',['styles']);
+  gulp.watch(config.paths.templates + '/**/*.pug',['templates']);
+  gulp.watch(config.paths.srcImages + '/**/*',['images']);
 });
 
 
@@ -121,7 +161,7 @@ gulp.task('default', (cb) => {
 
     runSequence(
       'clean',
-      ['sass', 'js', 'pug'],
+      ['styles', 'scripts', 'templates', 'images'],
       'watch',
       cb
     );
