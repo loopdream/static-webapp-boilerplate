@@ -27,6 +27,7 @@ var fs = require('fs');
 var yaml = require('js-yaml');
 
 var config = {
+  environment: argv.environment || 'local',
   paths: {
     src: './src',
     dist: './dist', 
@@ -145,14 +146,17 @@ gulp.task('images',()=>{
 
 
 gulp.task('watch', ()=> {
-  browserSync.init({
-      port: config.defaultPort,
-      server: config.paths.dist
-  });
-  gulp.watch(config.paths.srcStyles + '/**/*.js',['scripts']);
-  gulp.watch(config.paths.srcStyles + '/**/*.sass',['styles']);
-  gulp.watch(config.paths.templates + '/**/*.pug',['templates']);
-  gulp.watch(config.paths.srcImages + '/**/*',['images']);
+  if (config.environment==='local') {
+    browserSync.init({
+        port: config.defaultPort,
+        server: config.paths.dist
+    });
+    gulp.watch(config.paths.srcStyles + '/**/*.js',['scripts']);
+    gulp.watch(config.paths.srcStyles + '/**/*.sass',['styles']);
+    gulp.watch(config.paths.templates + '/**/*.pug',['templates']);
+    gulp.watch(config.paths.srcImages + '/**/*',['images']);
+  };
+
 });
 
 
