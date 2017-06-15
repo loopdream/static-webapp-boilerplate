@@ -25,6 +25,7 @@ var cache = require('gulp-cache');
 var argv = require('yargs').argv;
 var fs = require('fs');
 var yaml = require('js-yaml');
+var gulpif = require('gulp-if');
 
 var config = {
   environment: argv.environment || 'local',
@@ -114,8 +115,8 @@ gulp.task('scripts',()=>{
 
 
 gulp.task('templates',()=>{
-
     var data = readYamlFile('/global.yaml');
+    var templateData = Object.assign(config, data);
     console.log(data);
     gulp.src([config.paths.templates + '/**/*.pug'])
         .pipe(plumber({
@@ -124,8 +125,8 @@ gulp.task('templates',()=>{
                 this.emit('end');
             }
         }))
-        .pipe(pug({pretty: true, data: data}))
-        .pipe(minifyHtml())
+        .pipe(pug({pretty: true, data: templateData}))
+        .pipe(gulpif(config.minify, minifyHtml()))
         .pipe(gulp.dest(config.paths.dist))
         .pipe(reload({stream:true}))
 });
@@ -146,7 +147,6 @@ gulp.task('images',()=>{
 
 
 gulp.task('watch', ()=> {
-  if (config.environment==='local') {
     browserSync.init({
         port: config.defaultPort,
         server: config.paths.dist
@@ -155,19 +155,23 @@ gulp.task('watch', ()=> {
     gulp.watch(config.paths.srcStyles + '/**/*.sass',['styles']);
     gulp.watch(config.paths.templates + '/**/*.pug',['templates']);
     gulp.watch(config.paths.srcImages + '/**/*',['images']);
-  };
-
 });
 
 
 
-gulp.task('default', (cb) => {
-
+gulp.task('dev', (cb) => {
     runSequence(
-      'clean',
-      ['styles', 'scripts', 'templates', 'images'],
+      'default',
       'watch',
       cb
     );
+});
 
+
+gulp.task('default', (cb) => {
+    runSequence(
+      'clean',
+      ['styles', 'scripts', 'templates', 'images'],
+      cb
+    );
 });
