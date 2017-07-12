@@ -3,8 +3,8 @@ googlefont: https://fonts.googleapis.com/icon?family=Roboto
 meta:
   description: The world is a fine place, and worth fighting for
   og:
-    title: Hello World
-    description: The world is a fine place, and worth fighting for
+    title: test
+    description: The world is a fine place, and worth fighting for!
     image: /assets/images/seneca.jpg
 
 image: /assets/images/seneca.jpg

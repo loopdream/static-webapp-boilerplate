@@ -31,8 +31,10 @@
     "gulp-uglify": "^3.0.0",
     "js-yaml": "^3.8.4",
     "jshint": "^2.9.4",
+    "lodash": "^4.17.4",
     "node-bourbon": "^4.2.8",
     "node-neat": "^2.0.0-beta.0",
+    "path": "^0.12.7",
     "pug": "^2.0.0-rc.2",
     "run-sequence": "^1.2.2",
     "yargs": "^8.0.2"
