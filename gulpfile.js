@@ -1,18 +1,17 @@
-const gulp        = require('gulp');
+const gulp = require('gulp');
 
 /* Create a global object of gulp + node plugins */
 const $ = Object.assign({
-  bs:   require('browser-sync').create(),
-  rs:   require('run-sequence'),
-  argv: require('yargs').argv,
-  fs:   require('fs'),
-  yaml: require('js-yaml'),
-  _:    require('lodash')
+  bs:     require('browser-sync').create(),
+  rs:     require('run-sequence'),
+  argv:   require('yargs').argv,
+  fs:     require('fs'),
+  yaml:   require('js-yaml'),
+  _:      require('lodash'),
+  oMerge: require('object-merge')
 }, require('gulp-load-plugins')());
 
-
 require('es6-promise').polyfill();
-
 
 const config = {
   defaultPort: 3000,
@@ -32,35 +31,40 @@ const config = {
   }
 }
 
- 
+console.log('config', config);
+
 function getTask(task) {
+  console.log('task:',task);
   return require('./gulp/tasks/' + task)(gulp, config, $);
 }
 
+const tasks = [
+  'clean',
+  'styles',
+  'scripts',
+  'templates',
+  'images',
+  'watch'
+];
 
-$.fs.readdir( './gulp/tasks/', ( err, files ) => {
-  $._.each(files, (file)=> {
-    console.log(file)
-    var name = file.substr(0, file.lastIndexOf('.'));
-    gulp.task(name, getTask(name));
-  });
+$._.each(tasks, (task, i) => {
+  gulp.task(task, getTask(task));
 });
 
 
 gulp.task('dev', (cb) => {
-    $.rs(
-      'default',
-      'watch',
-      cb
-    );
+  $.rs(
+    'default',
+    'watch',
+    cb
+  );
 });
 
 
 gulp.task('default', (cb) => {
- 
-    $.rs(
-      'clean',
-      ['styles', 'scripts', 'templates', 'images'],
-      cb
-    );
+  $.rs(
+    'clean',
+    ['styles', 'scripts', 'templates', 'images'],
+    cb
+  );
 });
