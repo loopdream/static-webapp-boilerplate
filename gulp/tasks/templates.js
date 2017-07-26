@@ -12,7 +12,7 @@ module.exports = (gulp, config, $) => {
         var templateData = Object.assign(config, data);
 
         /* Insert any specific data manipulatiopn here */
-    	var stream = gulp.src([config.paths.templates + '/**/*.pug'])
+    	   var stream = gulp.src([config.paths.templates + '/**/*.pug'])
         .pipe($.plumber({
             handleError: function (err) {
                 console.log(err);

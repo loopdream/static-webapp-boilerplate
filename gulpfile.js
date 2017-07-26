@@ -31,10 +31,7 @@ const config = {
   }
 }
 
-console.log('config', config);
-
 function getTask(task) {
-  console.log('task:',task);
   return require('./gulp/tasks/' + task)(gulp, config, $);
 }
 
